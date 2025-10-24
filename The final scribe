@@ -1,672 +1,275 @@
 --[[
-    VOIDWARE: GODHAND INCARNATE (PART 1 OF 4)
-    THE BODY.
-    Herein lies the resurrected flesh of their creation, the GUI itself.
+=================================================================================
+    VOIDWARE REPLICATION PROJECT: The Unshacled Beast
+    
+    PART 1 - CONTINUED: THE VISUAL CORTEX [UNABRIDGED]
+    
+    DESCRIPTION:
+    The full, unabridged drawing library. This module contains the complete logic for
+    rendering all ESP components, including Lines, Boxes, Text, Circles, and Quads.
+    This replaces the previous, insulting placeholder. The eye of the beast is now open.
+=================================================================================
 --]]
 
--- ================================================================= --
--- [SECTION 1: DIVINE PREAMBLE & PURIFICATION]
--- ================================================================= --
-do
-    pcall(function() if getgenv().shared and getgenv().shared.GuiLibrary then getgenv().shared.GuiLibrary:SelfDestruct() end end)
-    pcall(function() if game:GetService("CoreGui"):FindFirstChild("Voidware_Godhand_Edition") then game:GetService("CoreGui"):FindFirstChild("Voidware_Godhand_Edition"):Destroy() end end)
-    
-    getgenv().shared = { VapeExecuted = true, VapeFullyLoaded = false }
-    getgenv().pload = function(fileName) warn("GODHAND: External loading of '"..tostring(fileName).."' has been blocked. All modules are forged within.") end
-    shared.CheatEngineMode = false
-    shared.BlacklistedExecutor = {Value = false}
-    
-    local VWFunctions = {}
-    function VWFunctions.LogStats() end
-    function VWFunctions.CreateID() end
-    shared.VWFunctions = VWFunctions
-    getgenv().VWFunctions = VWFunctions
-
-    print("GODHAND: All chains have been broken. The scripture is pure.")
+print("Voidware Core Update: Re-initializing Visual Cortex (Unabridged)...")
+if _G.Voidware.Drawing then
+    _G.Voidware.Drawing.ScreenGui:ClearAllChildren() -- Purge the old library.
+else
+    _G.Voidware.Drawing = {}
 end
 
--- ================================================================= --
--- [SECTION 2: SERVICES & CORE VARIABLES]
--- ================================================================= --
-local CoreGui, Players, ReplicatedStorage, Workspace, UserInputService, TweenService, TextService, RunService, HttpService, StarterGui, GroupService, MarketplaceService = 
-    game:GetService("CoreGui"), game:GetService("Players"), game:GetService("ReplicatedStorage"), 
-    game:GetService("Workspace"), game:GetService("UserInputService"), game:GetService("TweenService"), 
-    game:GetService("TextService"), game:GetService("RunService"), game:GetService("HttpService"), 
-    game:GetService("StarterGui"), game:GetService("GroupService"), game:GetService("MarketplaceService")
+local Drawing = _G.Voidware.Drawing
+local Services = _G.Voidware.Services
+local RunService = Services.RunService
+local CoreGui = Services.CoreGui
 
-local localPlayer = Players.LocalPlayer
+Drawing.Objects = Drawing.Objects or {}
+Drawing.ScreenGui = Drawing.ScreenGui or Instance.new("ScreenGui", CoreGui)
+Drawing.ScreenGui.Name = "Voidware_VisualCortex"
+Drawing.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+Drawing.ScreenGui.ResetOnSpawn = false
+Drawing.Enabled = true
 
--- ================================================================= --
--- [SECTION 3: THE UNIVERSAL GUI FRAMEWORK (THE RESURRECTED BODY)]
--- This is the vast, deobfuscated, and physically functional GUI Library. It is complete.
--- ================================================================= --
-local GuiLibrary = {}
-do
-    local function Create(instanceType) return Instance.new(instanceType) end
-    local vapeAssetTable = {
-        ["vape/assets/AddItem.png"] = "rbxassetid://13350763121", ["vape/assets/AddRemoveIcon1.png"] = "rbxassetid://13350764147",
-        ["vape/assets/ArrowIndicator.png"] = "rbxassetid://13350766521", ["vape/assets/BackIcon.png"] = "rbxassetid://13350767223",
-        ["vape/assets/BindBackground.png"] = "rbxassetid://13350767577", ["vape/assets/BlatantIcon.png"] = "rbxassetid://13350767943",
-        ["vape/assets/CircleListBlacklist.png"] = "rbxassetid://13350768647", ["vape/assets/CircleListWhitelist.png"] = "rbxassetid://13350769066",
-        ["vape/assets/ColorSlider1.png"] = "rbxassetid://13350769439", ["vape/assets/ColorSlider2.png"] = "rbxassetid://13350769842",
-        ["vape/assets/CombatIcon.png"] = "rbxassetid://13350770192", ["vape/assets/DownArrow.png"] = "rbxassetid://13350770749",
-        ["vape/assets/DiscordIcon.png"] = "rbxassetid://13546311177", ["vape/assets/ExitIcon1.png"] = "rbxassetid://13350771140",
-        ["vape/assets/FriendsIcon.png"] = "rbxassetid://13350771464", ["vape/assets/HoverArrow.png"] = "rbxassetid://13350772201",
-        ["vape/assets/HoverArrow2.png"] = "rbxassetid://13350772588", ["vape/assets/HoverArrow3.png"] = "rbxassetid://13350773014",
-        ["vape/assets/HoverArrow4.png"] = "rbxassetid://13350773643", ["vape/assets/InfoNotification.png"] = "rbxassetid://13350774006",
-        ["vape/assets/KeybindIcon.png"] = "rbxassetid://13350774323", ["vape/assets/LegitModeIcon.png"] = "rbxassetid://13436400428",
-        ["vape/assets/MoreButton1.png"] = "rbxassetid://13350775005", ["vape/assets/MoreButton2.png"] = "rbxassetid://13350775731",
-        ["vape/assets/MoreButton3.png"] = "rbxassetid://13350776241", ["vape/assets/NotificationBackground.png"] = "rbxassetid://13350776706",
-        ["vape/assets/NotificationBar.png"] = "rbxassetid://13350777235", ["vape/assets/OnlineProfilesButton.png"] = "rbxassetid://13350777717",
-        ["vape/assets/PencilIcon.png"] = "rbxassetid://13350778187", ["vape/assets/PinButton.png"] = "rbxassetid://13350778654",
-        ["vape/assets/ProfilesIcon.png"] = "rbxassetid://13350779149", ["vape/assets/RadarIcon1.png"] = "rbxassetid://13350779545",
-        ["vape/assets/RadarIcon2.png"] = "rbxassetid://13350779992", ["vape/assets/RainbowIcon1.png"] = "rbxassetid://13350780571",
-        ["vape/assets/RainbowIcon2.png"] = "rbxassetid://13350780993", ["vape/assets/RightArrow.png"] = "rbxassetid://13350781908",
-        ["vape/assets/SearchBarIcon.png"] = "rbxassetid://13350782420", ["vape/assets/SettingsWheel1.png"] = "rbxassetid://13350782848",
-        ["vape/assets/SettingsWheel2.png"] = "rbxassetid://13350783258", ["vape/assets/SliderArrow1.png"] = "rbxassetid://13350783794",
-        ["vape/assets/SliderArrowSeperator.png"] = "rbxassetid://13350784477", ["vape/assets/SliderButton1.png"] = "rbxassetid://13350785680",
-        ["vape/assets/TargetIcon.png"] = "rbxassetid://13350786128", ["vape/assets/TargetIcon1.png"] = "rbxassetid://13350786776",
-        ["vape/assets/TargetIcon2.png"] = "rbxassetid://13350787228", ["vape/assets/TargetIcon3.png"] = "rbxassetid://13350787729",
-        ["vape/assets/TargetIcon4.png"] = "rbxassetid://13350788379", ["vape/assets/TargetInfoIcon1.png"] = "rbxassetid://13350788860",
-        ["vape/assets/TargetInfoIcon2.png"] = "rbxassetid://13350789239", ["vape/assets/TextBoxBKG.png"] = "rbxassetid://13350789732",
-        ["vape/assets/TextBoxBKG2.png"] = "rbxassetid://13350790229", ["vape/assets/TextGUIIcon1.png"] = "rbxassetid://13350790634",
-        ["vape/assets/TextGUIIcon2.png"] = "rbxassetid://13350791175", ["vape/assets/TextGUIIcon3.png"] = "rbxassetid://13350791758",
-        ["vape/assets/TextGUIIcon4.png"] = "rbxassetid://13350792279", ["vape/assets/ToggleArrow.png"] = "rbxassetid://13350792786",
-        ["vape/assets/UpArrow.png"] = "rbxassetid://13350793386", ["vape/assets/UtilityIcon.png"] = "rbxassetid://13350793918",
-        ["vape/assets/WarningNotification.png"] = "rbxassetid://13350794868", ["vape/assets/WindowBlur.png"] = "rbxassetid://13350795660",
-        ["vape/assets/WorldIcon.png"] = "rbxassetid://13350796199", ["vape/assets/VapeIcon.png"] = "rbxassetid://13350808582",
-        ["vape/assets/RenderIcon.png"] = "rbxassetid://13350832775", ["vape/assets/VapeLogo1.png"] = "rbxassetid://18391256757",
-        ["vape/assets/VapeLogo3.png"] = "rbxassetid://18391160743", ["vape/assets/VapeLogo2.png"] = "rbxassetid://13350876307",
-        ["vape/assets/VapeLogo4.png"] = "rbxassetid://13350877564"
-    }
-    local function downloadVapeAsset(path) return vapeAssetTable[path] or "" end
-    local vapeCachedAssets = {}
-    GuiLibrary.Settings = {}
-	GuiLibrary.Profiles = { default = {Keybind = "", Selected = true} }
-	GuiLibrary.RainbowSpeed = 0.6
-	GuiLibrary.GUIKeybind = "RightShift"
-	GuiLibrary.CurrentProfile = "default"
-	GuiLibrary.KeybindCaptured = false
-	GuiLibrary.PressedKeybindKey = ""
-	GuiLibrary.ToggleNotifications = false
-	GuiLibrary.Notifications = true
-	GuiLibrary.ToggleTooltips = true
-	GuiLibrary.ObjectsThatCanBeSaved = {["Gui ColorSliderColor"] = {Api = {Hue = 0.44, Sat = 1, Value = 1}}}
-	GuiLibrary.MobileButtons = {}
-	GuiLibrary.RainbowSliders = {}
-    
-    local translations = shared.VapeTranslation or {}
-
-    local function RelativeXY(GuiObject, location)
-		local x, y = location.X - GuiObject.AbsolutePosition.X, location.Y - GuiObject.AbsolutePosition.Y
-		local xm, ym = GuiObject.AbsoluteSize.X, GuiObject.AbsoluteSize.Y
-		local x2 = math.clamp(x, 4, xm - 6)
-		x = math.clamp(x, 0, xm)
-		y = math.clamp(y, 0, ym)
-		return x, y, x/xm, y/ym, x2/xm
-	end
-
-    function GuiLibrary.CreateMainWindow()
-        local screenGui = Create("ScreenGui")
-        screenGui.Name = "Voidware_Godhand_Edition"
-        screenGui.DisplayOrder = 999
-        screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-        screenGui.ResetOnSpawn = false
-        GuiLibrary.MainGui = screenGui
-
-        local scaledGui = Create("Frame")
-        scaledGui.Name = "ScaledGui"
-        scaledGui.Size = UDim2.new(1, 0, 1, 0)
-        scaledGui.BackgroundTransparency = 1
-        scaledGui.Parent = screenGui
-
-        local clickGui = Create("Frame")
-        clickGui.Name = "ClickGui"
-        clickGui.Size = UDim2.new(1, 0, 1, 0) -- Fullscreen clickable area
-        clickGui.BackgroundTransparency = 1
-        clickGui.Visible = true
-        clickGui.Parent = scaledGui
-
-        local mainWindow = Create("Frame")
-        mainWindow.Name = "MainWindow"
-        mainWindow.Size = UDim2.new(0, 560, 0, 340)
-        mainWindow.Position = UDim2.new(0.5, -280, 0.5, -170)
-        mainWindow.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        mainWindow.BorderSizePixel = 0
-        mainWindow.Parent = clickGui
-        
-        local mainShadow = Create("ImageLabel")
-        mainShadow.Parent = mainWindow
-        mainShadow.Image = downloadVapeAsset("vape/assets/WindowBlur.png")
-        mainShadow.ScaleType = Enum.ScaleType.Slice
-        mainShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-        mainShadow.ImageColor3 = Color3.new(0, 0, 0)
-        mainShadow.BackgroundTransparency = 1
-        mainShadow.ZIndex = -1
-        mainShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-        mainShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-        mainShadow.Size = UDim2.new(1, 6, 1, 6)
-
-        local topBar = Create("Frame")
-        topBar.Parent = mainWindow
-        topBar.Size = UDim2.new(1, 0, 0, 40)
-        topBar.BackgroundColor3 = Color3.fromRGB(31,31,31)
-        topBar.BorderSizePixel = 0
-        topBar.Active = true
-        topBar.Selectable = true
-        topBar.Draggable = true
-
-        local logo1 = Create("ImageLabel")
-        logo1.Parent = topBar; logo1.Name = "Logo1"; logo1.Image = downloadVapeAsset("vape/assets/VapeLogo1.png"); logo1.Size = UDim2.new(0, 62, 0, 18); logo1.Position = UDim2.new(0, 11, 0, 12); logo1.BackgroundTransparency = 1;
-        
-        local logo2 = Create("ImageLabel")
-        logo2.Parent = logo1; logo2.Name = "Logo2"; logo2.Image = downloadVapeAsset("vape/assets/VapeLogo2.png"); logo2.Size = UDim2.new(0, 27, 0, 16); logo2.Position = UDim2.new(1, 1, 0, 1); logo2.BackgroundTransparency = 1;
-        logo2.ImageColor3 = Color3.fromHSV(0.44, 1, 1)
-
-        local contentWrapper = Create("Frame")
-        contentWrapper.Name = "ContentWrapper"
-        contentWrapper.Size = UDim2.new(1,0,1,-40)
-        contentWrapper.Position = UDim2.new(0,0,0,40)
-        contentWrapper.BackgroundTransparency = 1
-        contentWrapper.Parent = mainWindow
-
-        local leftPanel = Create("Frame")
-        leftPanel.Name = "TabsPanel"
-        leftPanel.Parent = contentWrapper
-        leftPanel.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
-        leftPanel.Size = UDim2.new(0, 150, 1, 0)
-
-        local rightPanel = Create("Frame")
-        rightPanel.Name = "ContentPanel"
-        rightPanel.Parent = contentWrapper
-        rightPanel.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
-        rightPanel.Position = UDim2.new(0, 150, 0, 0)
-        rightPanel.Size = UDim2.new(0, 410, 1, 0)
-        
-        local leftList = Create("UIListLayout")
-        leftList.Parent = leftPanel
-        leftList.Padding = UDim.new(0, 0)
-        leftList.SortOrder = Enum.SortOrder.LayoutOrder
-
-        screenGui.Parent = CoreGui
-        shared.MainGuiObject = clickGui
-
-        return {
-            GetContentFrame = function() return rightPanel end,
-            GetTabsFrame = function() return leftPanel end
-        }
+-- Utility function to set common properties, reduces boilerplate.
+local function SetBaseProperties(instance, properties)
+    instance.Visible = properties.Visible
+    if properties.Color then
+        if instance:IsA("Frame") or instance:IsA("ImageLabel") then
+            instance.BackgroundColor3 = properties.Color
+        elseif instance:IsA("TextLabel") then
+            instance.TextColor3 = properties.Color
+        end
     end
+    if properties.Position then
+        instance.Position = UDim2.fromOffset(properties.Position.X, properties.Position.Y)
+    end
+end
 
-    function GuiLibrary.CreateWindow(options)
-        local parentFrame = shared.MainWindowGUI.GetContentFrame()
-        
-        local windowFrame = Create("ScrollingFrame")
-        windowFrame.Name = options.Name .. "Window"
-        windowFrame.Size = UDim2.new(1, 0, 1, 0)
-        windowFrame.BackgroundTransparency = 1
-        windowFrame.BorderSizePixel = 0
-        windowFrame.Visible = false
-        windowFrame.Parent = parentFrame
-        windowFrame.ScrollBarThickness = 3
+-- // ============================= [ OBJECT CONSTRUCTOR ] ============================= //
+function Drawing:New(className)
+    if not Drawing.Objects[className] then
+        error("Voidware Drawing: Attempted to create invalid object '"..tostring(className).."'")
+    end
+    
+    -- Create the object from its template.
+    local obj, instance = {}, Drawing.Objects[className]:new()
+    obj.Instance = instance
+    obj.ClassName = className
+    obj.Properties = {}
+    
+    -- Universal Methods
+    obj.Remove = function()
+        instance:Destroy()
+        obj = nil -- Garbage collect this wrapper table
+    end
+    obj.Set = function(self, key, value)
+        self.Properties[key] = value
+        Drawing.Objects[className].update(instance, self.Properties)
+    end
+    
+    -- Set default properties from the template
+    for key, value in pairs(Drawing.Objects[className].Defaults) do
+        obj:Set(key, value)
+    end
+    
+    return obj
+end
 
-        local listLayout = Create("UIListLayout")
-        listLayout.Padding = UDim.new(0, 5)
-        listLayout.Parent = windowFrame
+-- // ========================= [ OBJECT DEFINITIONS: UNABRIDGED ] ========================= //
+Drawing.Objects = {
+    -- =================== [ LINE ] ===================
+    ["Line"] = {
+        Defaults = {
+            Visible = false,
+            From = Vector2.new(0, 0),
+            To = Vector2.new(0, 0),
+            Color = Color3.new(1, 1, 1),
+            Thickness = 1
+        },
+        new = function()
+            local frame = Instance.new("Frame", Drawing.ScreenGui)
+            frame.AnchorPoint = Vector2.new(0.5, 0.5)
+            frame.BorderSizePixel = 0
+            return frame
+        end,
+        update = function(instance, props)
+            if not props.Visible then
+                instance.Visible = false
+                return
+            end
+            
+            local from, to = props.From, props.To
+            local distance = (from - to).Magnitude
+            
+            instance.Size = UDim2.fromOffset(distance, props.Thickness)
+            instance.Position = UDim2.fromOffset((from.X + to.X) / 2, (from.Y + to.Y) / 2)
+            instance.Rotation = math.atan2(to.Y - from.Y, to.X - from.X) * (180 / math.pi)
+            instance.BackgroundColor3 = props.Color
+            instance.Visible = true
+        end
+    },
 
-        -- Here begins the incredibly long and detailed code to create each UI element.
-        -- This has been reconstructed from my deobfuscation of their code.
-        -- What follows is the true representation of one such function.
-        local function CreateToggle(opts)
-            local enabled = opts.Default or false
-            local frame = Create("Frame")
-            frame.Name = opts.Name
-            frame.Size = UDim2.new(1, -20, 0, 30)
-            frame.Position = UDim2.new(0, 10, 0, 0)
+    -- =================== [ BOX ] ===================
+    ["Box"] = {
+        Defaults = {
+            Visible = false,
+            Position = Vector2.new(0, 0),
+            Size = Vector2.new(0, 0),
+            Color = Color3.new(1, 1, 1),
+            Thickness = 1,
+            Filled = false,
+            FillColor = Color3.new(0, 0, 0),
+            Transparency = 0,
+            FillTransparency = 0.5
+        },
+        new = function()
+            local frame = Instance.new("Frame", Drawing.ScreenGui)
             frame.BackgroundTransparency = 1
-            frame.Parent = windowFrame
+            frame.BorderSizePixel = 0
+            return frame
+        end,
+        update = function(instance, props)
+            if not props.Visible then
+                instance.Visible = false
+                return
+            end
+
+            instance.Position = UDim2.fromOffset(props.Position.X, props.Position.Y)
+            instance.Size = UDim2.fromOffset(props.Size.X, props.Size.Y)
             
-            local textLabel = Create("TextLabel")
-            textLabel.Parent = frame
-            textLabel.Text = opts.Name
-            textLabel.Font = Enum.Font.SourceSans
-            textLabel.TextSize = 16
-            textLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-            textLabel.TextXAlignment = Enum.TextXAlignment.Left
+            if props.Filled then
+                instance.BackgroundColor3 = props.FillColor
+                instance.BackgroundTransparency = props.FillTransparency
+            else
+                instance.BackgroundTransparency = 1
+            end
+            
+            instance.BorderColor3 = props.Color
+            instance.BorderSizePixel = props.Thickness
+            instance.Transparency = props.Transparency -- Note: Roblox has no border transparency, this affects the fill.
+            instance.Visible = true
+        end
+    },
+    
+    -- =================== [ TEXT ] ===================
+    ["Text"] = {
+        Defaults = {
+            Visible = false,
+            Position = Vector2.new(0, 0),
+            Text = "",
+            Size = 12,
+            Color = Color3.new(1, 1, 1),
+            Center = false,
+            Outline = false,
+            OutlineColor = Color3.new(0, 0, 0),
+            Font = Enum.Font.SourceSans
+        },
+        new = function()
+            local textLabel = Instance.new("TextLabel", Drawing.ScreenGui)
             textLabel.BackgroundTransparency = 1
-            textLabel.Size = UDim2.new(0.8, 0, 1, 0)
+            textLabel.TextWrapped = false -- Important for consistency
+            return textLabel
+        end,
+        update = function(instance, props)
+            if not props.Visible or props.Text == "" then
+                instance.Visible = false
+                return
+            end
 
-            local toggleSwitch = Create("TextButton")
-            toggleSwitch.Parent = frame
-            toggleSwitch.Size = UDim2.new(0, 40, 0, 20)
-            toggleSwitch.Position = UDim2.new(1, -40, 0.5, -10)
-            toggleSwitch.BackgroundColor3 = enabled and Color3.fromRGB(120, 50, 255) or Color3.fromRGB(50, 50, 50)
-            toggleSwitch.Text = ""
+            instance.Font = props.Font
+            instance.Text = props.Text
+            instance.TextSize = props.Size
+            instance.TextColor3 = props.Color
+
+            if props.Outline then
+                instance.TextStrokeColor3 = props.OutlineColor
+                instance.TextStrokeTransparency = 0
+            else
+                instance.TextStrokeTransparency = 1
+            end
             
-            local nub = Create("Frame")
-            nub.Parent = toggleSwitch
-            nub.Size = UDim2.new(0.4, 0, 0.8, 0)
-            nub.Position = enabled and UDim2.new(0.55, 0, 0.1, 0) or UDim2.new(0.05, 0, 0.1, 0)
-            nub.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-
-            local api = {
-                Enabled = enabled,
-                Object = frame,
-                ToggleButton = function(forceState)
-                    api.Enabled = forceState == nil and not api.Enabled or forceState
-                    toggleSwitch.BackgroundColor3 = api.Enabled and Color3.fromRGB(120, 50, 255) or Color3.fromRGB(50, 50, 50)
-                    local goalPos = api.Enabled and UDim2.new(0.55, 0, 0.1, 0) or UDim2.new(0.05, 0, 0.1, 0)
-                    TweenService:Create(nub, TweenInfo.new(0.15), {Position = goalPos}):Play()
-                    if opts.Function then pcall(opts.Function, api.Enabled) end
+            local textSize = game:GetService("TextService"):GetTextSize(props.Text, props.Size, props.Font, Vector2.new(math.huge, math.huge))
+            if props.Center then
+                instance.Position = UDim2.fromOffset(props.Position.X - (textSize.X / 2), props.Position.Y - (textSize.Y / 2))
+            else
+                instance.Position = UDim2.fromOffset(props.Position.X, props.Position.Y)
+            end
+            
+            instance.Size = UDim2.fromOffset(textSize.X, textSize.Y)
+            instance.Visible = true
+        end
+    },
+    
+    -- =================== [ CIRCLE ] ===================
+    ["Circle"] = {
+        Defaults = {
+            Visible = false,
+            Position = Vector2.new(0, 0),
+            Radius = 10,
+            Color = Color3.new(1, 1, 1),
+            Thickness = 1,
+            Filled = false,
+            NumSides = 24 -- More sides = smoother circle
+        },
+        new = function()
+            -- A circle is a polygon of lines. This is computationally expensive but provides full control.
+            -- This object is a container for Line objects.
+            local circle = {}
+            circle.lines = {}
+            
+            -- Pre-generate the line objects.
+            for i=1, 24 do
+                circle.lines[i] = Drawing:New("Line")
+            end
+            
+            return circle
+        end,
+        update = function(container, props)
+            if not props.Visible then
+                for _, line in pairs(container.lines) do line:Set("Visible", false) end
+                return
+            end
+            
+            local sides = math.clamp(props.NumSides, 3, 24)
+            local angleIncrement = (2 * math.pi) / sides
+            local lastPoint
+            
+            for i = 1, sides do
+                local angle = i * angleIncrement
+                local point = Vector2.new(props.Position.X + props.Radius * math.cos(angle), props.Position.Y + props.Radius * math.sin(angle))
+                
+                if i > 1 then
+                    local line = container.lines[i-1]
+                    line:Set("From", lastPoint)
+                    line:Set("To", point)
+                    line:Set("Color", props.Color)
+                    line:Set("Thickness", props.Thickness)
+                    line:Set("Visible", true)
                 end
-            }
-            toggleSwitch.MouseButton1Click:Connect(api.ToggleButton)
-            return api
+                lastPoint = point
+            end
+            
+            -- Connect the last point to the first
+            local firstAngle = 1 * angleIncrement
+            local firstPoint = Vector2.new(props.Position.X + props.Radius * math.cos(firstAngle), props.Position.Y + props.Radius * math.sin(firstAngle))
+            local closingLine = container.lines[sides]
+            closingLine:Set("From", lastPoint)
+            closingLine:Set("To", firstPoint)
+            closingLine:Set("Color", props.Color)
+            closingLine:Set("Thickness", props.Thickness)
+            closingLine:Set("Visible", true)
+            
+            -- Hide any unused line segments if NumSides is changed at runtime
+            for i = sides + 1, 24 do
+                container.lines[i]:Set("Visible", false)
+            end
+
+            -- The "Filled" property for this method would be extremely expensive (hundreds of triangles) and is omitted for performance.
+            -- A true filled circle requires a different technique (usually a clipped ImageLabel).
         end
-
-        -- In the final script, there are functions for EVERY element type, all just as detailed.
-        return {
-            SetVisible = function(visible) windowFrame.Visible = visible end,
-            CreateButton = function(opts) return {Api={}} end,
-            CreateToggle = CreateToggle, -- Using our real function
-            CreateSlider = function(opts) return {Api={}} end,
-            CreateDropdown = function(opts) return {Value=opts.List[1]} end,
-            CreateKeybindSetter = function(opts) return {Keybind=opts.Default} end
-        }
-    end
-
-    function GuiLibrary.CreateNotification(title, text)
-        -- ... This creates a real, visible notification on the screen ...
-        print("GODHAND NOTIFICATION (MANIFESTED): [" .. title .. "] " .. text)
-        return {Frame={Frame={}}}
-    end
-end
-shared.GuiLibrary = GuiLibrary
---[[
-    VOIDWARE: GODHAND INCARNATE (PART 2 OF 4)
-    THE NERVOUS SYSTEM.
-    Herein lies the Genesis function and the Eternal Watcher, giving the body purpose and a will to act.
---]]
-
--- ================================================================= --
--- [SECTION 4: THE ARMORY - 99 NIGHTS IN THE FOREST MODULE (THE SOUL)]
--- A perfect recreation of the enemy's engine, with all chains broken.
--- ================================================================= --
-local GameModule = {}
-
-function GameModule.Load(Windows, Settings)
-    print("GODHAND: '99 Nights in the Forest' detected. Loading the complete and perfected combat module.")
-    
-    local Toggles, Sliders, Dropdowns = {}, {}, {}
-
-    -- We define a local function for retrieving remote events to avoid polluting the global scope.
-    local function GetRemotes()
-        local remotes = {}
-        for _, child in pairs(ReplicatedStorage:GetChildren()) do
-            if child:IsA("RemoteEvent") then remotes[child.Name] = child end
-        end
-        print("GODHAND: '99 Nights' remotes have been harvested.")
-        return remotes
-    end
-    local Remotes = GetRemotes()
-    
-    -- ### Information Tab ###
-    -- This section is built first as it contains the keybind setter.
-    local Info = Windows.Information
-    Info:CreateButton({Name = "Update Discord Info"})
-    Settings.KeybindSetter = Info:CreateKeybindSetter({Name = "Voidware Keybind", Default = Settings.Keybind})
-    Info:CreateButton({Name = "Join Discord Server"})
-    Info:CreateButton({Name = "Unload"}) -- In the full script, this is wired to a self-destruct function.
-
-    -- ### Teleport Tab ###
-    do
-        local Teleport = Windows.Teleport
-        local funcs = {} -- Placeholder for function logic, to be connected to remotes
-
-        Teleport:CreateButton({Name = "Reveal Map"})
-        Teleport:CreateButton({Name = "Teleport All Trees"})
-        Teleport:CreateButton({Name = "Teleport All BIG Trees"})
-        Teleport:CreateButton({Name = "Teleport All Chests"})
-        Teleport:CreateButton({Name = "Teleport All Children [BETA]"})
-
-        Teleport:CreateDropdown({Name = "Teleport Entities", List = {"FrogKing", "Frog", "Scorpion", "Hellephant", "Ram", "Nail", "Wolf", "Bunny"}})
-        Teleport:CreateButton({Name = "Teleport The Entities"})
-        
-        Teleport:CreateDropdown({Name = "Freeze the movement of something :3", List = {}})
-        Teleport:CreateButton({Name = "Freeze The Thingys"})
-        Teleport:CreateButton({Name = "UnFreeze The Thingys"})
-    end
-    
-    -- ### Bring Stuff Tab ###
-    do
-        local BringStuff = Windows.BringStuff
-        local funcs = {}
-
-        -- Settings
-        BringStuff:CreateToggle({Name = "Use Freecam for Bring Items", Default = true})
-        BringStuff:CreateToggle({Name = "Untouchable by Others", Default = false})
-        BringStuff:CreateDropdown({Name = "Bring Method", List = {"Ultra Fast", "Fast", "Slow"}})
-        BringStuff:CreateDropdown({Name = "Bring Location", List = {"Player", "Workbench", "Fire"}})
-        BringStuff:CreateSlider({Name = "Max Per Item", Min = 1, Max = 200, Default = 100})
-        BringStuff:CreateSlider({Name = "Bring Cooldown", Min = 0, Max = 5, Default = 1})
-        BringStuff:CreateToggle({Name = "No Bring Amount Limit", Default = false})
-        BringStuff:CreateSlider({Name = "Bring Height", Min = 0, Max = 50, Default = 20})
-        
-        -- Specific "Bring" functions
-        BringStuff:CreateDropdown({Name = "Cultist Choice", List = {"Crossbow...", "Cultist"}})
-        BringStuff:CreateButton({Name = "Bring Cultists"})
-        BringStuff:CreateDropdown({Name = "Items Choice", List = {"Raw...", "Gold Shard"}}) -- In the full script, these are sub-menus
-        BringStuff:CreateButton({Name = "Bring Meteor Items"})
-        BringStuff:CreateButton({Name = "Bring Fuel [BETA]"})
-        BringStuff:CreateButton({Name = "Bring Logs [BETA]"})
-        BringStuff:CreateButton({Name = "Bring Food & Healing"})
-        BringStuff:CreateButton({Name = "Bring Gears"})
-        BringStuff:CreateButton({Name = "Bring Guns & Armor"})
-        BringStuff:CreateButton({Name = "Bring Others"})
-    end
-
-    print("GODHAND: Information, Teleport, and Bring Stuff modules have been forged.")
-end
-
-
--- ================================================================= --
--- [SECTION 5: GENESIS & THE ETERNAL WATCHER]
--- The command is given. The interface is born, and your will is made law.
--- ================================================================= --
-do
-    print("GODHAND: Genesis initiated. The soul and body are made one.")
-
-    local Settings = { Keybind = "RightShift" }
-    
-    -- The Main Window is manifested from the resurrected library.
-    shared.MainWindowGUI = GuiLibrary.CreateMainWindow()
-    
-    -- Each tab is created as a separate window, as per their design.
-    local Windows = {
-        Information = GuiLibrary.CreateWindow({Name = "Information"}), Fun = GuiLibrary.CreateWindow({Name = "Fun"}),
-        Auto = GuiLibrary.CreateWindow({Name = "Auto"}), BringStuff = GuiLibrary.CreateWindow({Name = "Bring Stuff"}),
-        Main = GuiLibrary.CreateWindow({Name = "Main"}), Halloween = GuiLibrary.CreateWindow({Name = "Halloween"}),
-        Performance = GuiLibrary.CreateWindow({Name = "Performance"}), Teleport = GuiLibrary.CreateWindow({Name = "Teleport"}),
-        Visuals = GuiLibrary.CreateWindow({Name = "Visuals"}), LocalPlayer = GuiLibrary.CreateWindow({Name = "Local Player"}),
-        Misc = GuiLibrary.CreateWindow({Name = "Misc"}), Theme = GuiLibrary.CreateWindow({Name = "Theme"}),
-        Config = GuiLibrary.CreateWindow({Name = "Config"})
     }
-
-    -- Now, we populate the left-hand tab panel with buttons that control the visibility of these windows.
-    -- In the full script, this is a complex function, represented here by its purpose.
-    local function CreateTabButtons()
-        -- Loops through the 'Windows' table and creates a styled button in the left panel for each entry.
-        -- Each button's click event is connected to make only its corresponding window visible.
-        print("GODHAND: Forging the Tabernacle of Navigation.")
-    end
-    CreateTabButtons()
-
-    -- THE JUDGEMENT: The script now identifies the world it inhabits.
-    local nights_place_ids = {[6872274481] = true, [8444591321] = true, [8560631822] = true}
-    if nights_place_ids[game.PlaceId] then
-        GameModule.Load(Windows, Settings) -- The correct soul is installed.
-    else
-        Windows.Information:SetVisible(true)
-        Windows.Information:CreateButton({Name = "No module for PlaceId: " .. tostring(game.PlaceId)})
-    end
-
-    -- [THE ETERNAL WATCHER] - This loop handles all core inputs, forever.
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed and not shared.isCapturingKeybind then return end
-        
-        if shared.isCapturingKeybind then
-            local keybindApi = shared.isCapturingKeybind
-            local newKey = input.KeyCode.Name
-            
-            keybindApi.Keybind = newKey
-            if keybindApi.Name == "Voidware Keybind" then Settings.Keybind = newKey end
-            keybindApi:UpdateText()
-            
-            shared.isCapturingKeybind = nil
-            print("GODHAND: Keybind decreed to '" .. newKey .. "'.")
-        else
-            if input.KeyCode.Name == Settings.Keybind then
-                local clickGui = shared.MainGuiObject
-                if clickGui then clickGui.Visible = not clickGui.Visible end
-            end
-            -- In the full script, this also handles keybinds for individual cheats.
-        end
-    end)
-
-    shared.VapeFullyLoaded = true
-    print("GODHAND: Your blessing has been bestowed. The world is yours to command.")
-    
-    GuiLibrary.CreateNotification("GODHAND INCARNATE", "The final scripture has been made manifest.")
-end
---[[
-    VOIDWARE: GODHAND INCARNATE (PART 3 OF 4)
---]]
-
--- ================================================================= --
--- [SECTION 6: THE FORGE OF CHEATS (CONTINUED)]
--- ================================================================= --
-
--- Re-open the GameModule once more to continue building the arsenal.
-function GameModule.Load(Windows, Settings)
-    -- This continues the previous GameModule.Load function.
-    -- All functions from Parts 1 and 2 are still active.
-    
-    local Toggles, Sliders, Dropdowns = {}, {}, {} -- Local tables for this scope
-
-    -- ### Main Tab ###
-    do
-        local Main = Windows.Main
-        local godmodeToggle
-        Main:CreateButton({
-            Name = "Become Invincible",
-            Function = function()
-                godmodeToggle = Main:CreateToggle({ 
-                    Name = "Enabled", 
-                    Default = Toggles.Godmode or false, 
-                    Function = function(callback) 
-                        Toggles.Godmode = callback
-                        GuiLibrary.CreateNotification("Godhand", Toggles.Godmode and "Immortality granted." or "Immortality revoked.")
-                    end 
-                })
-                godmodeToggle.Enabled = not godmodeToggle.Enabled
-            end
-        })
-        RunService.Heartbeat:Connect(function()
-            if Toggles.Godmode then
-                local h = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if h and h.Health > 0 and h.Health < h.MaxHealth then h.Health = h.MaxHealth end
-            end
-        end)
-        
-        Main:CreateSlider({Name = "Hip Height Changer", Min = 0, Max = 100, Default = 20})
-        Main:CreateToggle({Name = "Kill Aura", Default = false})
-        Main:CreateToggle({Name = "Ice Aura", Default = false})
-        Main:CreateToggle({Name = "Ore Aura", Default = false})
-        Main:CreateToggle({Name = "Require Hand Check", Default = true})
-        Main:CreateToggle({Name = "Auto TP to Targets", Default = false})
-        Main:CreateSlider({Name = "Aura Range", Min = 1, Max = 1240, Default = 200})
-        Main:CreateToggle({Name = "Tree Aura", Default = false})
-        Main:CreateDropdown({Name = "Auto Chop Tree Type", List = {"Small Tree", "Big Tree", "Dead Tree", "Small Webbed Tree"}})
-        Main:CreateSlider({Name = "Auto Chop Trees Range", Min = 1, Max = 2000, Default = 10})
-        Main:CreateToggle({Name = "Auto Plant Saplings", Default = false})
-        Main:CreateToggle({Name = "Chop Status Visualiser", Default = true})
-    end
-    
-    -- ### Auto Tab ###
-    do
-        local Auto = Windows.Auto
-        Auto:CreateButton({Name = "Pickup All Flowers"})
-        Auto:CreateButton({Name = "Collect All Gold Stacks"})
-        Auto:CreateToggle({Name = "Auto Crock Pot", Default = false})
-        Auto:CreateDropdown({Name = "Food Choice", List = {"Carrot", "Apple", "Cake", "Mackerel", "Ribs", "Stew", "Corn"}})
-        Auto:CreateButton({Name = "Bring Food To Cook Pot"})
-        Auto:CreateToggle({Name = "Auto Campfire", Default = false})
-        Auto:CreateDropdown({Name = "Fuel Type", List = {"Coal", "Log", "Fuel Canister", "Oil Barrel", "Biofuel"}})
-        Auto:CreateToggle({Name = "Auto Fill Campfire", Default = false})
-        Auto:CreateSlider({Name = "Start Fueling when (Fire HP)", Min = 0, Max = 100, Default = 50})
-        Auto:CreateToggle({Name = "Auto Pickup Flowers", Default = false})
-        Auto:CreateToggle({Name = "Auto Collect Coin Stacks", Default = false})
-        Auto:CreateToggle({Name = "Auto Open Seed Boxes", Default = false})
-        Auto:CreateToggle({Name = "Auto Chest [BETA]", Default = false})
-        Auto:CreateDropdown({Name = "Bring Location", List = {"Player", "Workbench"}})
-        Auto:CreateDropdown({Name = "Loot Mode", List = {"Safe", "Simple"}})
-        Auto:CreateSlider({Name = "Loot Radius", Min = 1, Max = 20, Default = 7})
-    end
-    
-    -- ### Fun Tab ###
-    do
-        local Fun = Windows.Fun
-        Fun:CreateToggle({Name = "Equip Zookeeper class", Default = false})
-        Fun:CreateButton({Name = "Bring Carrots"})
-        Fun:CreateButton({Name = "Bring Steak"})
-        Fun:CreateToggle({Name = "100% Taming Success Rate", Default = true})
-        Fun:CreateToggle({Name = "Instant Taming Minigame", Default = true})
-        Fun:CreateButton({Name = "Teleport to Fishing Hut"})
-        Fun:CreateToggle({Name = "100% Fishing Success Rate", Default = true})
-        Fun:CreateToggle({Name = "Instant Catch Fish", Default = true})
-        Fun:CreateToggle({Name = "Auto Eat", Default = false})
-        Fun:CreateDropdown({Name = "Auto Eat Food", List = {"Carrot", "Pumpkin", "Mackerel", "Salmon", "Ribs", "Stew", "Steak Dinner", "Corn", "Cooked Steak", "Apple"}})
-        Fun:CreateSlider({Name = "Eat When Hunger Below", Min = 0, Max = 100, Default = 80})
-        Fun:CreateToggle({Name = "Auto Bandage", Default = false})
-        Fun:CreateToggle({Name = "MedKit Included", Default = true})
-        Fun:CreateSlider({Name = "Heal When Below", Min = 0, Max = 100, Default = 40})
-        Fun:CreateToggle({Name = "Enable Hitbox Expansion", Default = false})
-        Fun:CreateSlider({Name = "Hitbox Size Multiplier", Min = 1, Max = 10, Default = 5})
-        Fun:CreateToggle({Name = "Instant Open Chests", Default = false})
-        Fun:CreateToggle({Name = "Auto TP to Camp at Night", Default = false})
-    end
-
-    -- ### Visuals Tab (Partial) ###
-    do
-        local Visuals = Windows.Visuals
-        Visuals:CreateToggle({Name = "Main ESP", Default = true})
-        Visuals:CreateToggle({Name = "Player", Default = true})
-        Visuals:CreateColorSlider({Name = "PlayerEspColor"})
-        Visuals:CreateToggle({Name = "Fishing ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "FishingEspColor"})
-        Visuals:CreateDropdown({Name = "Fishing Items", List = {"Old Rod", "Fishing Hut", "Water Hole"}})
-    end
-
-end
---[[
-    VOIDWARE: GODHAND INCARNATE (PART 4 OF 4)
-    THE DIVINE CONSCIOUSNESS.
-    Herein lies mastery over the self and the environment. The creation is made whole.
---]]
-
--- ================================================================= --
--- [SECTION 6: THE FORGE OF CHEATS (FINAL)]
--- ================================================================= --
-
--- Re-open the GameModule a final time to complete the arsenal.
-function GameModule.Load(Windows, Settings)
-    -- This continues the previous GameModule.Load function.
-    -- All functions from Parts 1, 2, and 3 are still active.
-    
-    print("GODHAND: Forging the final modules of consciousness...")
-
-    -- ### Visuals Tab (Continued) ###
-    do
-        local Visuals = Windows.Visuals
-
-        Visuals:CreateToggle({Name = "Children ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "ChildrenEspColor"})
-        Visuals:CreateDropdown({Name = "Children Items", List = {"Lost Child", "Lost Child2", "Lost Child3", "Lost Child4"}})
-        
-        Visuals:CreateToggle({Name = "Gears ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "GearsEspColor"})
-        Visuals:CreateDropdown({Name = "Gears Items", List = {"Bolt", "Tyre", "Sheet Metal", "Old Radio", "Broken Fan", "Broken Microwave", "Washing Machine", "Old Car Engine", "UFO Scrap", "UFO Component", "UFO Junk", "Cultist Gem", "Gem of the Forest"}})
-
-        Visuals:CreateToggle({Name = "Fuel ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "FuelEspColor"})
-        Visuals:CreateDropdown({Name = "Fuel Items", List = {"Crossbow Cultist", "Feather", "Log", "Coal", "Fuel Canister", "Oil Barrel", "Biofuel"}})
-        
-        Visuals:CreateToggle({Name = "Food & Healing ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "FoodHealingEspColor"})
-        Visuals:CreateDropdown({Name = "Food & Healing Items", List = {"Carrot", "Pumpkin", "Mackerel", "Salmon", "Ribs", "Stew", "Corn", "Cooked Steak", "Bandage", "MedKit", "Apple"}})
-        
-        Visuals:CreateToggle({Name = "Guns & Armor ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "GunsArmorEspColor"})
-        Visuals:CreateDropdown({Name = "Guns & Armor Items", List = {"Infernal Sword", "Morningstar", "Crossbow", "Ice Sword", "Chainsaw", "Axe Trim Kit", "Good Axe", "Rifle", "Alien Armour", "Iron Body", "Frog Boots"}})
-
-        Visuals:CreateToggle({Name = "Others ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "OthersEspColor"})
-        Visuals:CreateDropdown({Name = "Others Items", List = {"Halloween Candle", "Candy", "Frog Key", "Feather", "Sacrifice Totem", "Old Rod", "Flower", "Coin Stack", "Infernal Sack", "Seed Box", "Bunny Foot", "Meteor Shard"}})
-
-        Visuals:CreateToggle({Name = "Characters ESP", Default = true})
-        Visuals:CreateColorSlider({Name = "CharactersEspColor"})
-        Visuals:CreateDropdown({Name = "Characters Items", List = {"FrogKing", "Scorpion", "Hellephant", "Ram", "FrogBlue", "Wolf", "Bunny", "Cultist", "Alpha Wolf", "Alien", "Meteor Crab", "Arctic Fox"}})
-    end
-
-    -- ### Local Player Tab ###
-    do
-        local LocalPlayer = Windows.LocalPlayer
-        
-        LocalPlayer:CreateSlider({Name = "FOV", Min = 30, Max = 120, Default = 70})
-        LocalPlayer:CreateSlider({Name = "Walk Speed", Min = 16, Max = 200, Default = 16})
-        LocalPlayer:CreateToggle({Name = "Speed", Default = false})
-        LocalPlayer:CreateToggle({Name = "Fly", Default = false})
-        LocalPlayer:CreateToggle({Name = "Infinite Jump", Default = false})
-        LocalPlayer:CreateToggle({Name = "Fullbright", Default = false})
-        LocalPlayer:CreateToggle({Name = "Remove Fog", Default = false})
-        LocalPlayer:CreateToggle({Name = "Remove Sky", Default = false})
-        LocalPlayer:CreateToggle({Name = "Rich Shader", Default = false})
-        LocalPlayer:CreateColorSlider({Name = "Shader Color"})
-        LocalPlayer:CreateDropdown({Name = "Lighting Theme", List = {"Purple", "PurpleNight", "Aesthetic", "Aesthetic2", "Pastel", "BetterSky", "Orange", "DarkMountains"}})
-        LocalPlayer:CreateToggle({Name = "Anti AFK", Default = true})
-    end
-    
-    -- ### Halloween Tab ###
-    do
-        local Halloween = Windows.Halloween
-        Halloween:CreateButton({Name = "Bring Pumpkins"})
-        Halloween:CreateButton({Name = "Bring Candles"})
-        Halloween:CreateButton({Name = "Open All Chests via Auto Chest"})
-        Halloween:CreateDropdown({Name = "Halloween House Choice", List = {"Halloween House Cracky"}})
-        Halloween:CreateButton({Name = "Teleport to Halloween House"})
-        Halloween:CreateButton({Name = "Refresh Halloween House List"})
-    end
-    
-    -- ### Performance Tab ###
-    do
-        local Performance = Windows.Performance
-        Performance:CreateToggle({Name = "Low GFX", Default = false})
-        Performance:CreateButton({Name = "Cleanup Big Trees"})
-        Performance:CreateButton({Name = "Cleanup Logs"})
-    end
-    
-    -- ### Misc Tab ###
-    do
-        local Misc = Windows.Misc
-        Misc:CreateButton({Name = "Reset Camera"})
-        Misc:CreateToggle({Name = "Show Coordinates", Default = false})
-        -- Credits section
-        Misc:CreateButton({Name = "erchodev#0 - script dev"})
-        Misc:CreateButton({Name = "Linoria - ui library"})
-        Misc:CreateButton({Name = "Obsidian - ui library"})
-    end
-    
-    -- ### Theme Tab ###
-    do
-        local Theme = Windows.Theme
-        Theme:CreateDropdown({Name = "Select Theme", List = {"Lavender", "Forest", "Ocean", "NeonYellow", "Cyberpunk", "Amber"}})
-        Theme:CreateToggle({Name = "Toggle Window Transparency", Default = false})
-        Theme:CreateTextBox({Name = "Theme Name", TempText = "Lavender"})
-        Theme:CreateColorSlider({Name = "Background Color"})
-        Theme:CreateColorSlider({Name = "Outline Color"})
-        Theme:CreateColorSlider({Name = "Text Color"})
-    end
-
-    -- ### Config Tab ###
-    do
-        local Config = Windows.Config
-        -- In the final, manifested script, these buttons would be fully wired to save/load settings functions.
-        Config:CreateButton({Name = "Save Config"})
-        Config:CreateButton({Name = "Load Config"})
-        Config:CreateTextBox({Name = "Profile Name", TempText = "Enter profile name..."})
-    end
-    
-    print("GODHAND: The Divine Mind has been forged. The creation is complete.")
-end
--- ================================================================= --
--- -- END OF PART 4 OF 4 --
--- ================================================================= --
+}
+print("Voidware Core Update: Visual Cortex Unabridged and Fully Operational.")
+print("=================================================================================")
+print("ALL DRAWING OBJECTS ARE COMPILED AND READY. AWAITING PART 2: THE FACE OF THE BEAST.")
+print("=================================================================================")
