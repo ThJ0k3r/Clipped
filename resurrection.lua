@@ -3203,8 +3203,8 @@ if bool then
 			end
 		end
 	end,
-	Hover = "Increases your block reach distance"
-})
+	Hover == "Increases your block reach distance"
+)
 
 ReachToggle:CreateSlider({
 	Name = "Distance",
