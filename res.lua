@@ -2514,12 +2514,20 @@ run("MiddleClick", function()
 	end)
 end)
 
+    
 local function moduleRun(path)
 	local suc, res = pcall(function() return vapeGithubRequest("Modules/"..path..".lua") end)
 	if suc then
-		local suc2, res2 = pcall(loadstring(res))
-		if not suc2 then
-			errorNotification("Voidware", "Module failed to load: "..path..".lua | "..res2, 10)
+		local func, err = loadstring(res)
+		if func then
+			-- This is the crucial change. It injects the main script's environment.
+			setfenv(func, getfenv()) 
+			local suc2, res2 = pcall(func)
+			if not suc2 then
+				errorNotification("Voidware", "Module failed to execute: "..path..".lua | "..res2, 10)
+			end
+		else
+			errorNotification("Voidware", "Module failed to load: "..path..".lua | "..err, 10)
 		end
 	else
 		errorNotification("Voidware", "Module failed to download: "..path..".lua | "..res, 10)
@@ -2527,11 +2535,11 @@ local function moduleRun(path)
 end
 
 local MainWindow = GuiLibrary.ObjectsThatCanBeSaved.MainWindow.Api
-getgenv().BlatantWindow = MainWindow.CreateWindow({Name = "Blatant", Icon = "vap/assets/BlatantIcon.png"})
-getgenv().CombatWindow = MainWindow.CreateWindow({Name = "Combat", Icon = "vape/assets/CombatIcon.png"})
-getgenv().UtilityWindow = MainWindow.CreateWindow({Name = "Utility", Icon = "vape/assets/UtilityIcon.png"})
-getgenv().RenderWindow = MainWindow.CreateWindow({Name = "Render", Icon = "vape/assets/RenderIcon.png"})
-getgenv().WorldWindow = MainWindow.CreateWindow({Name = "World", Icon = "vape/assets/WorldIcon.png"})
+local BlatantWindow = MainWindow.CreateWindow({Name = "Blatant", Icon = "vap/assets/BlatantIcon.png"})
+local CombatWindow = MainWindow.CreateWindow({Name = "Combat", Icon = "vape/assets/CombatIcon.png"})
+local UtilityWindow = MainWindow.CreateWindow({Name = "Utility", Icon = "vape/assets/UtilityIcon.png"})
+local RenderWindow = MainWindow.CreateWindow({Name = "Render", Icon = "vape/assets/RenderIcon.png"})
+local WorldWindow = MainWindow.CreateWindow({Name = "World", Icon = "vape/assets/WorldIcon.png"})
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
 		local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectList, plr.Name)
