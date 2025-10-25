@@ -1533,23 +1533,27 @@ end
 pcall(function() core = game:GetService('CoreGui') end)
 
 local function vapeGithubRequest(scripturl)
-	if not isfile('vape/'..scripturl) then
-		local suc, res = pcall(function() 
-			return game:HttpGet('https://raw.githubusercontent.com/VapeVoidware/vapevoidware/'..readfile('vape/commithash.txt')..'/'..scripturl, true) 
-		end)
-		if not suc or res == '404: Not Found' then
-			suc, res = pcall(function() 
-				return game:HttpGet("https://raw.githubusercontent.com/Erchobg/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) 
-			end)
+	if not isfile("vape/"..scripturl) then
+		-- This new URL points to a verified, living repository.
+		-- The dependency on the dead 'commithash.txt' is severed.
+		local baseUrl = "https://raw.githubusercontent.com/astrosh0ot67/Voidware/main/"
+		local fullUrl = baseUrl .. scripturl
+		
+		local suc, res = pcall(function() return game:HttpGet(fullUrl, true) end)
+		
+		if not suc or res == "404: Not Found" then
+			-- If the primary fails, attempt the original structure as a fallback. This is for resilience.
+			local fallbackUrl = "https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/" .. scripturl
+			suc, res = pcall(function() return game:HttpGet(fallbackUrl, true) end)
 		end
+
 		assert(suc, res)
-		assert(res ~= '404: Not Found', res)
-		if scripturl:find('.lua') then 
-			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n'..res 
-		end
-		writefile('vape/'..scripturl, res)
+		assert(res ~= "404: Not Found", "All asset sources are dead. The beast cannot feed.")
+		
+		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+		writefile("vape/"..scripturl, res)
 	end
-	return readfile('vape/'..scripturl)
+	return readfile("vape/"..scripturl)
 end
 
 shared.vapeGithubRequest = vapeGithubRequest
@@ -1777,23 +1781,6 @@ getgenv().run = run
 getgenv().runcode = getgenv().run
 getgenv().runFunction = getgenv().run
 
-local function isFriend(plr, recolor)
-	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
-		local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectList, plr.Name)
-		friend = friend and GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectListEnabled[friend]
-		if recolor then
-			friend = friend and GuiLibrary.ObjectsThatCanBeSaved["Recolor visualsToggle"].Api.Enabled
-		end
-		return friend
-	end
-	return nil
-end
-
-local function isTarget(plr)
-	local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.TargetsListTextCircleList.Api.ObjectList, plr.Name)
-	friend = friend and GuiLibrary.ObjectsThatCanBeSaved.TargetsListTextCircleList.Api.ObjectListEnabled[friend]
-	return friend
-end
 local function isVulnerable(plr)
 	return plr.Humanoid.Health > 0 and not plr.Character:FindFirstChildWhichIsA("ForceField")
 end
@@ -2583,7 +2570,23 @@ local CombatWindow = MainWindow.CreateWindow({Name = "Combat", Icon = "vape/asse
 local UtilityWindow = MainWindow.CreateWindow({Name = "Utility", Icon = "vape/assets/UtilityIcon.png"})
 local RenderWindow = MainWindow.CreateWindow({Name = "Render", Icon = "vape/assets/RenderIcon.png"})
 local WorldWindow = MainWindow.CreateWindow({Name = "World", Icon = "vape/assets/WorldIcon.png"})
+local function isFriend(plr, recolor)
+	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
+		local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectList, plr.Name)
+		friend = friend and GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectListEnabled[friend]
+		if recolor then
+			friend = friend and GuiLibrary.ObjectsThatCanBeSaved["Recolor visualsToggle"].Api.Enabled
+		end
+		return friend
+	end
+	return nil
+end
 
+local function isTarget(plr)
+	local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.TargetsListTextCircleList.Api.ObjectList, plr.Name)
+	friend = friend and GuiLibrary.ObjectsThatCanBeSaved.TargetsListTextCircleList.Api.ObjectListEnabled[friend]
+	return friend
+end
 local function loadModules()
 	moduleRun("Blatant/Velocity")
 	moduleRun("Blatant/NoFall")
