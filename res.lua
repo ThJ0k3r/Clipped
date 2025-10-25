@@ -2773,7 +2773,7 @@ local function createLegitModules()
 		local Fps = LegitModules.Create("FPS")
 		local Coords = LegitModules.Create("Coordinates")
 		moduleRun("Legit/Keystrokes")
-		moduleRun("Legit/Cps")
+moduleRun("Legit/Cps")
 		moduleRun("Legit/Ping")
 		moduleRun("Legit/Fps")
 		moduleRun("Legit/Coords")
@@ -3349,14 +3349,12 @@ run("Triggerbot", function()
 						local target_player = playersService:GetPlayerFromCharacter(target_part.Parent)
 						if target_player and target_player ~= lplr and entityLibrary.isPlayerTargetable(target_player) then
 							local tool = lplr.Character:FindFirstChildOfClass("Tool")
-							if tool and tool:FindFirstChild("Handle") then
-								pcall(function() tool:Activate() end)
-								last_shot = tick()
-							end
+						if tool then
+							pcall(function()
+								tool:Activate()
+							end)
 						end
-					end
-				end)
-			else
+
 				RunLoops:UnbindFromHeartbeat("Triggerbot")
 			end
 		end,
