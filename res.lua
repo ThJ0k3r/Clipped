@@ -2527,11 +2527,11 @@ local function moduleRun(path)
 end
 
 local MainWindow = GuiLibrary.ObjectsThatCanBeSaved.MainWindow.Api
-local BlatantWindow = MainWindow.CreateWindow({Name = "Blatant", Icon = "vape/assets/BlatantIcon.png"})
-local CombatWindow = MainWindow.CreateWindow({Name = "Combat", Icon = "vape/assets/CombatIcon.png"})
-local UtilityWindow = MainWindow.CreateWindow({Name = "Utility", Icon = "vape/assets/UtilityIcon.png"})
-local RenderWindow = MainWindow.CreateWindow({Name = "Render", Icon = "vape/assets/RenderIcon.png"})
-local WorldWindow = MainWindow.CreateWindow({Name = "World", Icon = "vape/assets/WorldIcon.png"})
+getgenv().BlatantWindow = MainWindow.CreateWindow({Name = "Blatant", Icon = "vap/assets/BlatantIcon.png"})
+getgenv().CombatWindow = MainWindow.CreateWindow({Name = "Combat", Icon = "vape/assets/CombatIcon.png"})
+getgenv().UtilityWindow = MainWindow.CreateWindow({Name = "Utility", Icon = "vape/assets/UtilityIcon.png"})
+getgenv().RenderWindow = MainWindow.CreateWindow({Name = "Render", Icon = "vape/assets/RenderIcon.png"})
+getgenv().WorldWindow = MainWindow.CreateWindow({Name = "World", Icon = "vape/assets/WorldIcon.png"})
 local function isFriend(plr, recolor)
 	if GuiLibrary.ObjectsThatCanBeSaved["Use FriendsToggle"].Api.Enabled then
 		local friend = table.find(GuiLibrary.ObjectsThatCanBeSaved.FriendsListTextCircleList.Api.ObjectList, plr.Name)
