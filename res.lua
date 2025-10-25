@@ -2520,7 +2520,7 @@ local function moduleRun(path)
 	if suc then
 		local func, err = loadstring(res)
 		if func then
-			-- This is the crucial change. It injects the main script's environment.
+			-- This is the key. It forces the module to use the main script's environment.
 			setfenv(func, getfenv()) 
 			local suc2, res2 = pcall(func)
 			if not suc2 then
@@ -2697,141 +2697,87 @@ local function createLegitModules()
 		end)
 	end
 	
-	function LegitModules.Create(name)
-		local api = {Update = Instance.new("BindableEvent")}
-		local moduleFrame = Instance.new("Frame")
-		moduleFrame.Size = UDim2.new(0, 163, 0, 114)
-		moduleFrame.BackgroundColor3 = Color3.fromRGB(44, 43, 44)
-		moduleFrame.Parent = LegitModulesList
-		local moduleCorner = Instance.new("UICorner")
-		moduleCorner.CornerRadius = UDim.new(0, 3)
-		moduleCorner.Parent = moduleFrame
-		local moduleToggle = Instance.new("ImageButton")
-		moduleToggle.BackgroundTransparency = 1
-		moduleToggle.Size = UDim2.new(0, 24, 0, 12)
-		moduleToggle.Position = UDim2.new(1, -33, 0, 9)
-		moduleToggle.Image = "rbxassetid://13436402263"
-		moduleToggle.Parent = moduleFrame
-		local moduleTitle = Instance.new("TextLabel")
-		moduleTitle.Size = UDim2.new(1, 0, 0, 31)
-		moduleTitle.BackgroundTransparency = 1
-		moduleTitle.Font = Enum.Font.Gotham
-		moduleTitle.Text = name
-		moduleTitle.TextColor3 = Color3.fromRGB(230, 230, 230)
-		moduleTitle.TextXAlignment = Enum.TextXAlignment.Left
-		moduleTitle.Position = UDim2.new(0, 12, 0, 0)
-		moduleTitle.TextSize = 16
-		moduleTitle.Parent = moduleFrame
-		local moduleChildren = Instance.new("Frame")
-		moduleChildren.Size = UDim2.new(1, -24, 1, -43)
-		moduleChildren.Position = UDim2.new(0, 12, 0, 31)
-		moduleChildren.BackgroundTransparency = 1
-		moduleChildren.Parent = moduleFrame
-		local moduleList = Instance.new("UIListLayout")
-		moduleList.SortOrder = Enum.SortOrder.LayoutOrder
-		moduleList.FillDirection = Enum.FillDirection.Vertical
-		moduleList.Parent = moduleChildren
-		local legitModule = Instance.new("Frame")
-		legitModule.BackgroundTransparency = 0.8
-		legitModule.Size = UDim2.new(0, 100, 0, 20)
-		legitModule.Name = name
-		legitModule.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
-		legitModule.BorderSizePixel = 0
-		legitModule.Visible = false
-		legitModule.Parent = legitgui
-		local legitModuleTitle = Instance.new("TextLabel")
-		legitModuleTitle.Size = UDim2.new(1, 0, 1, 0)
-		legitModuleTitle.Font = Enum.Font.Gotham
-		legitModuleTitle.TextScaled = true
-		legitModuleTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-		legitModuleTitle.Text = name
-		legitModuleTitle.BackgroundTransparency = 1
-		legitModuleTitle.Parent = legitModule
-		local legitModuleTextLimit = Instance.new("UITextSizeConstraint")
-		legitModuleTextLimit.MaxTextSize = 14
-		legitModuleTextLimit.Parent = legitModuleTitle
-		local legitModuleCorner = Instance.new("UICorner")
-		legitModuleCorner.CornerRadius = UDim.new(0, 3)
-		legitModuleCorner.Parent = legitModule
-		api.ToggleButton = function(enabled)
-			api.Enabled = enabled
-			legitModule.Visible = enabled
-			moduleToggle.Image = enabled and "rbxassetid://13436401490" or "rbxassetid://13436402263"
-			api.Update:Fire()
-		end
-		drag(legitModule)
-		GuiLibrary.ObjectsThatCanBeSaved[name.."LegitModule"] = {["Type"] = "LegitModule", ["Object"] = legitModule, ["Api"] = api}
-		moduleToggle.MouseButton1Click:Connect(function() api.ToggleButton(not api.Enabled) end)
-		return {
-			CreateSlider = function(sliderName, default, min, max, callback)
-				local sliderApi = {}
-				sliderApi.Value = default
-				local sliderLabel = Instance.new("TextLabel")
-				sliderLabel.Size = UDim2.new(1, 0, 0, 14)
-				sliderLabel.BackgroundTransparency = 1
-				sliderLabel.Font = Enum.Font.Gotham
-				sliderLabel.Text = sliderName
-				sliderLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-				sliderLabel.TextXAlignment = Enum.TextXAlignment.Left
-				sliderLabel.TextSize = 14
-				sliderLabel.Parent = moduleChildren
-				local slider = Instance.new("Frame")
-				slider.Size = UDim2.new(1, 0, 0, 16)
-				slider.BackgroundColor3 = Color3.fromRGB(30, 29, 30)
-				slider.Parent = moduleChildren
-				local sliderFill = Instance.new("Frame")
-				sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-				sliderFill.BackgroundColor3 = Color3.fromHSV(GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api.Hue, GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api.Sat, GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api.Value)
-				sliderFill.Parent = slider
-				local sliderValue = Instance.new("TextLabel")
-				sliderValue.Size = UDim2.new(1, 0, 1, 0)
-				sliderValue.BackgroundTransparency = 1
-				sliderValue.Font = Enum.Font.Gotham
-				sliderValue.Text = default
-				sliderValue.TextColor3 = Color3.fromRGB(230, 230, 230)
-				sliderValue.TextSize = 14
-				sliderValue.Parent = slider
-				local function updateSlider(x)
-					local percentage = math.clamp((x - slider.AbsolutePosition.X) / slider.AbsoluteSize.X, 0, 1)
-					local value = math.floor((min + (max - min) * percentage) + 0.5)
-					sliderApi.Value = value
-					sliderFill.Size = UDim2.new(percentage, 0, 1, 0)
-					sliderValue.Text = value
-					callback(value)
-				end
-				slider.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						updateSlider(input.Position.X)
-						local moveConn
-						local upConn
-						moveConn = inputService.InputChanged:Connect(function(input2)
-							if input2.UserInputType == Enum.UserInputType.MouseMovement then
-								updateSlider(input2.Position.X)
-							end
-						end)
-						upConn = inputService.InputEnded:Connect(function(input2)
-							if input2.UserInputType == Enum.UserInputType.MouseButton1 then
-								moveConn:Disconnect()
-								upConn:Disconnect()
-							end
-						end)
-					end
-				end)
+local function createLegitModules()
+		local LegitModules = {}
+		function LegitModules.Create(name)
+			local api = {Update = Instance.new("BindableEvent")}
+			local moduleFrame = Instance.new("Frame")
+			moduleFrame.Size = UDim2.new(0, 163, 0, 114)
+			moduleFrame.BackgroundColor3 = Color3.fromRGB(44, 43, 44)
+			moduleFrame.Parent = LegitModulesList
+			local moduleCorner = Instance.new("UICorner")
+			moduleCorner.CornerRadius = UDim.new(0, 3)
+			moduleCorner.Parent = moduleFrame
+			local moduleToggle = Instance.new("ImageButton")
+			moduleToggle.BackgroundTransparency = 1
+			moduleToggle.Size = UDim2.new(0, 24, 0, 12)
+			moduleToggle.Position = UDim2.new(1, -33, 0, 9)
+			moduleToggle.Image = "rbxassetid://13436402263"
+			moduleToggle.Parent = moduleFrame
+			local moduleTitle = Instance.new("TextLabel")
+			moduleTitle.Size = UDim2.new(1, 0, 0, 31)
+			moduleTitle.BackgroundTransparency = 1
+			moduleTitle.Font = Enum.Font.Gotham
+			moduleTitle.Text = name
+			moduleTitle.TextColor3 = Color3.fromRGB(230, 230, 230)
+			moduleTitle.TextXAlignment = Enum.TextXAlignment.Left
+			moduleTitle.Position = UDim2.new(0, 12, 0, 0)
+			moduleTitle.TextSize = 16
+			moduleTitle.Parent = moduleFrame
+			local moduleChildren = Instance.new("Frame")
+			moduleChildren.Size = UDim2.new(1, -24, 1, -43)
+			moduleChildren.Position = UDim2.new(0, 12, 0, 31)
+			moduleChildren.BackgroundTransparency = 1
+			moduleChildren.Parent = moduleFrame
+			local moduleList = Instance.new("UIListLayout")
+			moduleList.SortOrder = Enum.SortOrder.LayoutOrder
+			moduleList.FillDirection = Enum.FillDirection.Vertical
+			moduleList.Parent = moduleChildren
+			local legitModule = Instance.new("Frame")
+			legitModule.BackgroundTransparency = 0.8
+			legitModule.Size = UDim2.new(0, 100, 0, 20)
+			legitModule.Name = name
+			legitModule.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
+			legitModule.BorderSizePixel = 0
+			legitModule.Visible = false
+			legitModule.Parent = legitgui
+			local legitModuleTitle = Instance.new("TextLabel")
+			legitModuleTitle.Size = UDim2.new(1, 0, 1, 0)
+			legitModuleTitle.Font = Enum.Font.Gotham
+			legitModuleTitle.TextScaled = true
+			legitModuleTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+			legitModuleTitle.Text = name
+			legitModuleTitle.BackgroundTransparency = 1
+			legitModuleTitle.Parent = legitModule
+			local legitModuleTextLimit = Instance.new("UITextSizeConstraint")
+			legitModuleTextLimit.MaxTextSize = 14
+			legitModuleTextLimit.Parent = legitModuleTitle
+			local legitModuleCorner = Instance.new("UICorner")
+			legitModuleCorner.CornerRadius = UDim.new(0, 3)
+			legitModuleCorner.Parent = legitModule
+			api.ToggleButton = function(enabled)
+				api.Enabled = enabled
+				legitModule.Visible = enabled
+				moduleToggle.Image = enabled and "rbxassetid://13436401490" or "rbxassetid://13436402263"
+				api.Update:Fire()
 			end
-		}
+			drag(legitModule)
+			GuiLibrary.ObjectsThatCanBeSaved[name.."LegitModule"] = {["Type"] = "LegitModule", ["Object"] = legitModule, ["Api"] = api}
+			moduleToggle.MouseButton1Click:Connect(function() api.ToggleButton(not api.Enabled) end)
+			return api
+		end
+		createLegitModules()
+		local Keystrokes = LegitModules.Create("Keystrokes")
+		local Cps = LegitModules.Create("CPS")
+		local Ping = LegitModules.Create("Ping")
+		local Fps = LegitModules.Create("FPS")
+		local Coords = LegitModules.Create("Coordinates")
+		moduleRun("Legit/Keystrokes")
+		moduleRun("Legit/Cps")
+		moduleRun("Legit/Ping")
+		moduleRun("Legit/Fps")
+		moduleRun("Legit/Coords")
 	end
-end
-createLegitModules()
-local Keystrokes = LegitModules.Create("Keystrokes")
-local Cps = LegitModules.Create("CPS")
-local Ping = LegitModules.Create("Ping")
-local Fps = LegitModules.Create("FPS")
-local Coords = LegitModules.Create("Coordinates")
-moduleRun("Legit/Keystrokes")
-moduleRun("Legit/Cps")
-moduleRun("Legit/Ping")
-moduleRun("Legit/Fps")
-moduleRun("Legit/Coords")
 
 task.spawn(function()
 	local oldWalkspeed = 16
